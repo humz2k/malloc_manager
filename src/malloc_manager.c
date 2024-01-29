@@ -88,8 +88,8 @@ void* smart_realloc(void* ptr, size_t sz, int line, const char* file){
     return out;
 }
 
-void smart_free(void* ptr){
-    log("freeing %p",ptr);
+void smart_free(void* ptr, int line, const char* file){
+    log("freeing %p (%s:%d)",ptr,file,line);
     int idx = -1;
     for (int i = 0; i < mmanager.n_alive; i++){
         if (mmanager.alive_allocations[i].ptr == ptr){

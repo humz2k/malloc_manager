@@ -12,8 +12,9 @@ C_FLAGS ?= -Wall -Wpedantic -Wno-gnu -Wno-newline-eof -Wno-unused-function -Wno-
 
 all: $(LIB_DIR)/libmmanager.a test.o
 
-test.o: test.c | $(LIB_DIR)/libmmanager.a
-	$(CC) $(C_FLAGS) -O3 -I$(INCLUDE_DIR) $^ -o $@ -L$(LIB_DIR) -lmmanager
+test.o: test.c $(OUTPUTS)
+	$(CC) $(C_FLAGS) -O3 -I$(INCLUDE_DIR) $^ -o $@ 
+# -L$(LIB_DIR) -Wl,--whole-archive -lmmanager
 
 $(LIB_DIR)/libmmanager.a: $(OUTPUTS)
 	ar cr $@ $^
