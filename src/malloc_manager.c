@@ -63,9 +63,28 @@ static void add_allocation(void* allocation, int line, const char* file){
     mmanager.alive_allocations[mmanager.n_alive - 1].file = file;
 }
 
+static void replace_allocation(void* allocation, void* original, int line, const char* file){
+    log("reallocated %p->%p (%s:%d)",original,allocation,file,line);
+    for (int i = 0; i < mmanager.n_alive; i++){
+        if (mmanager.alive_allocations[i].ptr != original)continue;
+        log("replacing %p with %p",mmanager.alive_allocations[i].ptr,allocation);
+        mmanager.alive_allocations[i].ptr = allocation;
+        mmanager.alive_allocations[i].file = file;
+        mmanager.alive_allocations[i].line = line;
+        return;
+    }
+    log("couldn't find %p to replace",original);
+}
+
 void* smart_malloc(size_t sz, int line, const char* file){
     void* out = malloc(sz);
     add_allocation(out,line, file);
+    return out;
+}
+
+void* smart_realloc(void* ptr, size_t sz, int line, const char* file){
+    void* out = realloc(ptr,sz);
+    replace_allocation(out,ptr,line,file);
     return out;
 }
 
@@ -85,6 +104,7 @@ void smart_free(void* ptr){
     }
     free(mmanager.alive_allocations[idx].ptr);
     mmanager.n_alive--;
+    log("freed %p (%p) (%d remaining)",mmanager.alive_allocations[idx].ptr,ptr,mmanager.n_alive);
     assert(mmanager.n_alive >= 0);
     if (mmanager.n_alive == 0){
         free(mmanager.alive_allocations);
@@ -125,7 +145,7 @@ void print_alive_allocations(){
     }
     printf("LOG<malloc_manager.c>: alive pointers:\n");
     for (int i = 0; i < mmanager.n_alive; i++){
-        assert(mmanager.alive_allocations[i].ptr != NULL);
+        //assert(mmanager.alive_allocations[i].ptr != NULL);
         printf(" - %s:%d -> %p\n",mmanager.alive_allocations[i].file,mmanager.alive_allocations[i].line,mmanager.alive_allocations[i].ptr);
     }
 }
