@@ -50,3 +50,14 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+.vscode/settings.json
+
+.vscode
+
+.DS_Store
+
+test.o
+
+lib
+
+build
